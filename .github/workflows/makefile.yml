@@ -1,4 +1,4 @@
-name: Makefile CI
+name: Deploy with makefile
 
 on:
   push:
@@ -8,17 +8,15 @@ on:
 
 jobs:
   build:
-
     runs-on: ARM64
-
     steps:
     - uses: actions/checkout@v2
     
-    - name: configure
-      run: ./configure
-      
     - name: Install dependencies
       run: make
+    
+    - name: configure
+      run: ./configure
       
     - name: Run check
       run: make check
