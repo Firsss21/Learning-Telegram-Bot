@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: arm-latest
+    runs-on: pi
 
     steps:
     - uses: actions/checkout@v2
