@@ -2,23 +2,18 @@ package ru.firsov.study.Java.Telegram.Bot.common.service;
 
 import com.vdurmont.emoji.EmojiParser;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
-import ru.firsov.study.Java.Telegram.Bot.common.BotState;
-import ru.firsov.study.Java.Telegram.Bot.common.bean.MessageGenerator;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.Chapter;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.Part;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.User;
-import ru.firsov.study.Java.Telegram.Bot.telegram.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static ru.firsov.study.Java.Telegram.Bot.telegram.Text.*;
@@ -33,21 +28,21 @@ public class KeyboardService {
     public ReplyKeyboardMarkup getKeyBoardByState(Long chatId) {
         User user = userService.getUser(chatId);
         switch (user.getBotState()) {
-            case SELECTING_PART -> {
+            case SELECTING_PART : {
                 List<Part> allParts = questionService.findAllParts();
                 List<String> parts = allParts.stream().map(Part::getName).collect(Collectors.toList());
                 parts.add(BACK_BTN.getText());
                 List<List<String>> lists = transformListToListOfLists(parts, 2);
                 return getKeyBoard(lists);
             }
-            case SELECTING_CHAPTER -> {
+            case SELECTING_CHAPTER : {
                 List<Chapter> allChapters = questionService.findAllChaptersByPartId(user.getSelectedPartId());
                 List<String> chapters = allChapters.stream().map(Chapter::getName).collect(Collectors.toList());
                 chapters.add(BACK_BTN.getText());
                 List<List<String>> lists = transformListToListOfLists(chapters, 2);
                 return getKeyBoard(lists);
             }
-            case TESTING -> {
+            case TESTING : {
                 if (user.isAdmin()) {
                     return getKeyBoard(new String[][]{
                             {KNOW_BTN.getText(), DONT_KNOW_BTN.getText()},
@@ -59,7 +54,7 @@ public class KeyboardService {
                         {BACK_BTN.getText()}
                 });
             }
-            case LEARNING -> {
+            case LEARNING : {
                 if (user.isAdmin()) {
                     return getKeyBoard(new String[][]{
                             {NEXT_BTN.getText(), BACK_BTN.getText()},
@@ -70,26 +65,26 @@ public class KeyboardService {
                         {NEXT_BTN.getText(), BACK_BTN.getText()},
                 });
             }
-            case ADMIN_PAGE -> {
+            case ADMIN_PAGE : {
                 return getKeyBoard(new String[][]{
                         {ADM_STATS_BTN.getText(), ADM_MSG_TO_ALL_BTN.getText()},
                         {ADM_CACHE_EVICT.getText(), BACK_BTN.getText()}
                 });
             }
-            case ADMIN_EDIT -> {
+            case ADMIN_EDIT : {
                 return getKeyBoard(new String[][]{
                         {ADM_EDIT_A.getText(), ADM_EDIT_Q.getText()},
                         {ADM_DELETE.getText()},
                         {BACK_BTN.getText()}
                 });
             }
-            case DEFAULT -> {
+            case DEFAULT : {
                 if (!user.isAdmin())
                     return getDefaultKeyboard();
                 else
                     return getAdminKeyBoard();
             }
-            default -> {
+            default : {
                 return getKeyBoard(new String[][]{
                         {BACK_BTN.getText()},
                 });
