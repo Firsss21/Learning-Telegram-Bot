@@ -1,4 +1,4 @@
-name: Deploy with makefile
+name: Deploy container
 
 on:
   push:
@@ -12,14 +12,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Install dependencies
+    - name: Build Docker-Container
       run: make
     
-    - name: configure
-      run: ./configure
-      
-    - name: Run check
-      run: make check
-      
-    - name: Run distcheck
-      run: make distcheck
+    - name: Deploy container
+      run: ssh ${{ host.USER }}@${{ host.ADDRESS }} "docker pull ${{ docker.IMAGE }} && docker run ${{ docker.RUNPARAMS }} ${{ docker.IMAGE }}"
