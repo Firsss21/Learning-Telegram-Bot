@@ -1,4 +1,4 @@
-name: Deploy with makefile
+name: Deploy container
 
 on:
   push:
