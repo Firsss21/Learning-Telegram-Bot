@@ -14,6 +14,10 @@ jobs:
     
     - name: Build Docker-Container
       run: make
-    
-    - name: Deploy container
-      run: ssh ${{ host.USER }}@${{ host.ADDRESS }} "docker pull ${{ docker.IMAGE }} && docker run ${{ docker.RUNPARAMS }} ${{ docker.IMAGE }}"
+      
+  deployment:
+      runs-on: ARM64
+      steps:
+      
+      - name: Deploy container
+        run: ssh ${{ secrets.HOST_USER }}@${{ secrets.HOST_ADDRESS }} "docker pull ${{ secrets.DOCKER_IMAGE }} && docker run ${{ secrets.DOCKER_RUNPARAMS }} ${{ secrets.DOCKER_IMAGE }}"
