@@ -13,11 +13,6 @@ jobs:
     - uses: actions/checkout@v2
     
     - name: Build Docker-Container
-      run: make
-      
-  deployment:
-      runs-on: ARM64
-      steps:
-      
-      - name: Deploy container
-        run: ssh ${{ secrets.HOST_USER }}@${{ secrets.HOST_ADDRESS }} "docker pull ${{ secrets.DOCKER_IMAGE }} && docker run ${{ secrets.DOCKER_RUNPARAMS }} ${{ secrets.DOCKER_IMAGE }}"
+      run: make    
+    - name: Deploy container
+      run: ssh ${{ secrets.HOST_USER }}@${{ secrets.HOST_ADDRESS }} "docker pull ${{ secrets.DOCKER_IMAGE }} && docker run ${{ secrets.DOCKER_RUNPARAMS }} ${{ secrets.DOCKER_IMAGE }}"
