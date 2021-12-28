@@ -14,5 +14,15 @@ jobs:
     
     - name: Build Docker-Container
       run: make    
-    - name: Deploy container
-      run: ssh ${{ secrets.HOST_USER }}@${{ secrets.HOST_ADDRESS }} "docker pull ${{ secrets.DOCKER_IMAGE }} && docker run ${{ secrets.DOCKER_RUNPARAMS }} ${{ secrets.DOCKER_IMAGE }}"
+   
+    - name: Deploy container via ssh command
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST_ADDRESS }}
+        username: ${{ secrets.HOST_USER }}
+        port: ${{ secrets.HOST_PORT }}
+        key: ${{ secrets.HOST_KEY }}
+        script: |
+          whoami
+          docker pull ${{ secrets.DOCKER_IMAGE }}
+          docker run ${{ secrets.DOCKER_RUNPARAMS }} ${{ secrets.DOCKER_IMAGE }}
