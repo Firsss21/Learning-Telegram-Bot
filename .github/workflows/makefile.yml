@@ -16,7 +16,6 @@ jobs:
     - name: Build Jar
       run: make    
     
-
     - uses: docker/setup-buildx-action@v1
       id: buildx
       with:
@@ -24,7 +23,9 @@ jobs:
     - name: Build Docker container
       run: |
           docker build . # will run buildx
-
+          
+    - name: Available platforms
+      run: echo ${{ steps.buildx.outputs.platforms }}
 
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
@@ -43,5 +44,6 @@ jobs:
         key: ${{ secrets.HOST_KEY }}
         script: |
           whoami
+          docker stop learning-tg-bot
           docker pull ${{ secrets.DOCKER_IMAGE }}
           docker run ${{ secrets.DOCKER_RUNPARAMS }} ${{ secrets.DOCKER_IMAGE }}
