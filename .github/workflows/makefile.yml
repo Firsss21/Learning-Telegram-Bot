@@ -31,7 +31,7 @@ jobs:
       with:
         name: ${{ secrets.DOCKER_IMAGE }}
         username: ${{ secrets.DOCKERHUB_USER }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
     
     
     - name: Deploy container via ssh command
