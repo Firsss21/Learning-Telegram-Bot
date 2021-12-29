@@ -27,7 +27,7 @@ jobs:
       
     - name: Build Docker container
       run: |
-          docker build . # will run buildx
+          docker build . --platform linux/arm64 # will run buildx
           
     - name: Available platforms
       run: echo ${{ steps.buildx.outputs.platforms }}
