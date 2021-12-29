@@ -20,6 +20,10 @@ jobs:
       id: buildx
       with:
         install: true
+    
+    - name: Set up QEMU #(for support many platforms)
+      uses: docker/setup-qemu-action@v1
+      
     - name: Build Docker container
       run: |
           docker build . # will run buildx
@@ -43,7 +47,7 @@ jobs:
         port: ${{ secrets.HOST_PORT }}
         key: ${{ secrets.HOST_KEY }}
         script: |
-          whoami
-          docker stop learning-tg-bot
           docker pull ${{ secrets.DOCKER_IMAGE }}
+          docker stop learning-tg-bot
+          docker rm learning-tg-bot
           docker run ${{ secrets.DOCKER_RUNPARAMS }} ${{ secrets.DOCKER_IMAGE }}
