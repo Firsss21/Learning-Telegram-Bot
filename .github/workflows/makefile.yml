@@ -27,9 +27,7 @@ jobs:
       
     - name: Build Docker container
       run: |
-          docker buildx build 
-          --tag ${{ secrets.DOCKER_IMAGE }} 
-          --platform linux/amd64,linux/arm/v7,linux/arm64 .
+          docker buildx build --tag ${{ secrets.DOCKER_IMAGE }} --platform linux/amd64,linux/arm/v7,linux/arm64 .
 #          docker build . --platform linux/arm64 # will run buildx
           
     - name: Available platforms
