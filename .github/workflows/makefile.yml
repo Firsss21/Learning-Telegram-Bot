@@ -23,7 +23,7 @@ jobs:
         install: true
     - name: Build Docker container
       run: |
-          docker build -t ${{ secrets.DOCKER_IMAGE }} . # will run buildx
+          docker build . # will run buildx
 
 
     - name: Publish to Registry
