@@ -34,6 +34,7 @@ jobs:
     - name: Build Docker container
       run: |
           docker build . 
+          docker ps
           docker push ${{ secrets.DOCKER_IMAGE }}
           
     - name: Available platforms
