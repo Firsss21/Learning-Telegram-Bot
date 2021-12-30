@@ -27,7 +27,7 @@ jobs:
       
     - name: Build Docker container
       run: |
-          docker build --load --platform=linux/arm64 . 
+          docker build -t ${{ secrets.DOCKER_IMAGE }} --load --platform=linux/arm64 . 
           
     - name: Available platforms
       run: echo ${{ steps.buildx.outputs.platforms }}
