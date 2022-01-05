@@ -35,7 +35,8 @@ jobs:
           push: true
           platforms: arm64
           tags: ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKER_IMAGE }}:${{ secrets.DOCKER_IMAGE_TAG }}
-
+          
+# Тоже работает
 #     - name: Build Docker container
 #       run: |
 #           docker build --platform=linux/arm64 -t ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKER_IMAGE }} -o type=registry .
@@ -52,10 +53,11 @@ jobs:
         connect_timeout: 10s
         script: |
           docker pull ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKER_IMAGE }}:${{ secrets.DOCKER_IMAGE_TAG }}
-          docker stop learning-tg-bot
-          docker rm learning-tg-bot
-          docker run ${{ secrets.DOCKER_RUNPARAMS }} ${{ secrets.DOCKER_IMAGE }}:${{ secrets.DOCKER_IMAGE_TAG }}
-
+          docker stop ${{ secrets.DOCKER_IMAGE }}
+          docker rm ${{ secrets.DOCKER_IMAGE }}
+          docker run ${{ secrets.DOCKER_RUNPARAMS }} ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKER_IMAGE }}:${{ secrets.DOCKER_IMAGE_TAG }}
+          
+# Тоже работает
 #     - name: Deploy container via ssh command
 #       uses: appleboy/ssh-action@master
 #       with:
@@ -64,7 +66,7 @@ jobs:
 #         port: ${{ secrets.HOST_PORT }}
 #         key: ${{ secrets.HOST_KEY }}
 #         script: |
-#           docker pull ${{ secrets.DOCKER_IMAGE }}
-#           docker stop learning-tg-bot
-#           docker rm learning-tg-bot
-#           docker run ${{ secrets.DOCKER_RUNPARAMS }} ${{ secrets.DOCKER_IMAGE }}
+#          docker pull ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKER_IMAGE }}:${{ secrets.DOCKER_IMAGE_TAG }}
+#          docker stop ${{ secrets.DOCKER_IMAGE }}
+#          docker rm ${{ secrets.DOCKER_IMAGE }}
+#          docker run ${{ secrets.DOCKER_RUNPARAMS }} ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKER_IMAGE }}:${{ secrets.DOCKER_IMAGE_TAG }}
