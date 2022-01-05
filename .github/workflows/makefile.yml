@@ -32,7 +32,7 @@ jobs:
       
     - name: Build Docker container
       run: |
-          docker build --platform=linux/arm64 .
+          docker build --platform=linux/arm64 -t firsss21/learning-tg-bot -o type=registry .
           docker ps
           docker push ${{ secrets.DOCKER_IMAGE }}
           
