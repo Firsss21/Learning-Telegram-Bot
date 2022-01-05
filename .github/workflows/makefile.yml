@@ -55,6 +55,7 @@ jobs:
           docker pull ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKER_IMAGE }}:${{ secrets.DOCKER_IMAGE_TAG }}
           docker stop ${{ secrets.DOCKER_IMAGE }}
           docker rm ${{ secrets.DOCKER_IMAGE }}
+          echo ${{ secrets.DOCKER_RUNPARAMS }} ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKER_IMAGE }}:${{ secrets.DOCKER_IMAGE_TAG }}
           docker run ${{ secrets.DOCKER_RUNPARAMS }} ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKER_IMAGE }}:${{ secrets.DOCKER_IMAGE_TAG }}
           
 # Тоже работает
