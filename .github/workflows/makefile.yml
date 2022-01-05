@@ -49,8 +49,8 @@ jobs:
         port: ${{ secrets.HOST_PORT }}
         key: ${{ secrets.HOST_KEY }}
         script: |
-         docker stop ${{ secrets.DOCKER_IMAGE }}
-         docker rm ${{ secrets.DOCKER_IMAGE }}
+         (docker stop ${{ secrets.DOCKER_IMAGE }} 2>/dev/null || true)
+         (docker rm ${{ secrets.DOCKER_IMAGE }} 2>/dev/null || true) 
 
     - name: Start container via ssh command 
       uses: cross-the-world/ssh-pipeline@master
