@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-#     runs-on: ARM64
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -34,7 +33,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          platform: arm
+          platforms: arm64
           tags: ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKER_IMAGE }}:${{ secrets.DOCKER_IMAGE_TAG }}
 
 #     - name: Build Docker container
