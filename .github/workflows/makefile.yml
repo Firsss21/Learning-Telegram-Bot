@@ -32,7 +32,7 @@ jobs:
       
     - name: Build Docker container
       run: |
-          docker build . --push
+          docker build --push
           docker ps
           docker push ${{ secrets.DOCKER_IMAGE }}
           
