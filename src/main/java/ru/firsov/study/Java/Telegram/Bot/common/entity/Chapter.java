@@ -3,6 +3,7 @@ package ru.firsov.study.Java.Telegram.Bot.common.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.util.List;
@@ -23,4 +24,9 @@ public class Chapter {
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "chapter")
     private List<Question> question;
+
+    public List<Question> getQuestion() {
+        Hibernate.initialize(question);
+        return question;
+    }
 }
