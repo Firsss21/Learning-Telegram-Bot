@@ -22,7 +22,7 @@ public class Chapter {
     private Part part;
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "chapter")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "chapter")
     private List<Question> question;
 
     public List<Question> getQuestion() {
