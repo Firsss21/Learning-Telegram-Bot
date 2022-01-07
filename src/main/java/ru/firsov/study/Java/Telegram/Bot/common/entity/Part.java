@@ -19,7 +19,7 @@ public class Part {
     private String name;
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "part")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "part")
     private List<Chapter> chapter;
 
     public List<Chapter> getChapter() {
