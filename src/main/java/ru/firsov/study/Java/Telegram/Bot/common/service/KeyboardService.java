@@ -30,14 +30,14 @@ public class KeyboardService {
         switch (user.getBotState()) {
             case SELECTING_PART : {
                 List<Part> allParts = questionService.findAllParts();
-                List<String> parts = allParts.stream().filter(e -> e.getChapter().size() > 0).map(Part::getName).collect(Collectors.toList());
+                List<String> parts = allParts.stream().map(Part::getName).collect(Collectors.toList());
                 parts.add(BACK_BTN.getText());
                 List<List<String>> lists = transformListToListOfLists(parts, 2);
                 return getKeyBoard(lists);
             }
             case SELECTING_CHAPTER : {
                 List<Chapter> allChapters = questionService.findAllChaptersByPartId(user.getSelectedPartId());
-                List<String> chapters = allChapters.stream().filter(e -> e.getQuestion().size() > 0).map(Chapter::getName).collect(Collectors.toList());
+                List<String> chapters = allChapters.stream().map(Chapter::getName).collect(Collectors.toList());
                 chapters.add(BACK_BTN.getText());
                 List<List<String>> lists = transformListToListOfLists(chapters, 2);
                 return getKeyBoard(lists);
