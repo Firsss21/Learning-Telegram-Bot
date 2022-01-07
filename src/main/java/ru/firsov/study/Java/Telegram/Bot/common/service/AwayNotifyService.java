@@ -26,7 +26,6 @@ public class AwayNotifyService implements NotifyService {
 
     @Scheduled(fixedDelayString = "${user.notifyCheck}")
     public void notifyUsers() {
-        System.out.println("kekwek");
         sendToAway(60L * 60 * 1000 * 24 * 3, AWAY_3DAY);
         sendToAway(60L * 60 * 1000 * 24 * 7, AWAY_7DAY);
         sendToAway(60L * 60 * 1000 * 24 * 30, AWAY_30DAY);
