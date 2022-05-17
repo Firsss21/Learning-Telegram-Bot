@@ -14,6 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.firsov.study.Java.Telegram.Bot.telegram.TelegramBot;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.List;
 
@@ -23,15 +24,21 @@ public class MessageService {
     @Value("#{${message.maxLength}}")
     private int msgMaxLength;
 
-    public MessageService(KeyboardService keyboardService, UserService userService, TelegramBot telegramBot) {
+    public MessageService(KeyboardService keyboardService, UserService userService) {
         this.keyboardService = keyboardService;
         this.userService = userService;
-        this.telegramBot = telegramBot;
     }
 
     private final KeyboardService keyboardService;
     private final UserService userService;
-    private final TelegramBot telegramBot;
+
+    private TelegramBot telegramBot;
+
+    @Autowired
+    public void setTelegramBot(TelegramBot telegramBot) {
+        this.telegramBot = telegramBot;
+    }
+
     /**
      * Отправляет сообщение выбранному chatId пользователю (т.е. любому).
      * @param chatId

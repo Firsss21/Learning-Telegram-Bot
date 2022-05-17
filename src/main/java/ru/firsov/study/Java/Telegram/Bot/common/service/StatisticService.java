@@ -2,12 +2,12 @@ package ru.firsov.study.Java.Telegram.Bot.common.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.firsov.study.Java.Telegram.Bot.common.entity.Chapter;
+import ru.firsov.study.Java.Telegram.Bot.common.entity.Question;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.Rating;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.User;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Service
 @AllArgsConstructor

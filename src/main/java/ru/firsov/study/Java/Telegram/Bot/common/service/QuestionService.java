@@ -80,7 +80,19 @@ public class QuestionService {
         }
     }
 
-    @CacheEvict(allEntries = true, value = {"chapter_questions", "question"})
+    @Cacheable(value = "all_questions")
+    public List<Question> findAllQuestions() {
+        List<Question> questions = new ArrayList<>();
+        questionRepo.findAll().forEach(questions::add);
+        return questions;
+    }
+    @Cacheable(value = "all_chapters")
+    public List<Chapter> findAllChapters() {
+        List<Chapter> chapters = new ArrayList<>();
+        chapterRepo.findAll().forEach(chapters::add);
+        return chapters;
+    }
+    @CacheEvict(allEntries = true, value = {"chapter_questions", "question", "all_questions", "all_chapters"})
     public void evictAllQuestions() {
     }
 

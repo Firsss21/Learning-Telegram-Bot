@@ -1,27 +1,29 @@
 package ru.firsov.study.Java.Telegram.Bot.common.service;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.firsov.study.Java.Telegram.Bot.common.BotState;
-import ru.firsov.study.Java.Telegram.Bot.common.cache.UserCache;
+import ru.firsov.study.Java.Telegram.Bot.common.entity.Chapter;
+import ru.firsov.study.Java.Telegram.Bot.common.entity.Question;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.User;
 import ru.firsov.study.Java.Telegram.Bot.common.repository.UserRepo;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Transactional
 public class UserService {
 
-    public UserService(UserRepo userRepo) {
+    public UserService(QuestionService questionService, UserRepo userRepo) {
+        this.questionService = questionService;
         this.userRepo = userRepo;
     }
 
+    private final QuestionService questionService;
     private final UserRepo userRepo;
     @Value("#{${user.millisForNewVisit}}")
     private Long timeForNewVisit;
@@ -86,7 +88,7 @@ public class UserService {
         return getUser(chatId).getBotState();
     }
 
-//    @Cacheable(value = UserCache.NAME, sync = true)
+    //    @Cacheable(value = UserCache.NAME, sync = true)
     public User getUser(Long chatId) {
         return userRepo.findAllByChatId(chatId);
     }
@@ -103,6 +105,33 @@ public class UserService {
                 .append("\n:mag: Просмотрено вопросов:")
                 .append(user.getQuestionViewed())
         ;
+
+        List<Chapter> allChapters = questionService.findAllChapters();
+        Collection<Long> solvedQuestions = user.getSolvedQuestions();
+
+        List<Question> questions = new ArrayList<>();
+        Map<String, Integer> chaptersSolved = new HashMap<>();
+        allChapters.forEach(e -> chaptersSolved.put(e.getName(),
+                (int) e.getQuestion().stream().filter(q -> solvedQuestions.contains(q.getId())).count()
+        ));
+
+
+        Map<String, Integer> chaptersMax = new HashMap<>();
+        allChapters.forEach(e -> {
+            chaptersMax.put(e.getName(), e.getQuestion().size());
+        });
+
+        builder.append("\n");
+        builder.append(":man_student: Решено вопросов: \n");
+        chaptersSolved.entrySet().stream().filter(e -> e.getValue() > 0).forEach(e -> builder
+                .append(":white_small_square: ")
+                .append(e.getKey())
+                .append(": ")
+                .append(e.getValue())
+                .append(" из ")
+                .append(chaptersMax.get(e.getKey()))
+                .append(chaptersMax.get(e.getKey()) == e.getValue() ? " :white_check_mark:" : "")
+                .append("\n"));
 
         return builder.toString();
     }

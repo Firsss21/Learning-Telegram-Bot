@@ -22,7 +22,7 @@ public class JavaTelegramBotApplication {
 
 	@Bean
 	@Transactional
-	CommandLineRunner run(QuestionService s) {
+	CommandLineRunner run() {
 		return args -> {
 
 		};
