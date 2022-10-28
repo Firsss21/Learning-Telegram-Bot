@@ -10,4 +10,5 @@ import java.util.List;
 public interface PartRepo extends CrudRepository<Part, Long> {
     List<Part> findAll();
     Part findByName(String name);
+    List<Part> findAllByHiddenIsFalse();
 }

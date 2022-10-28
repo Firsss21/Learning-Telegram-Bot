@@ -9,4 +9,7 @@ import java.util.List;
 public interface ChapterRepo extends CrudRepository<Chapter, Long> {
     List<Chapter> findAllByPart(Part part);
     Chapter findByName(String name);
+
+    List<Chapter> findAllByPartIdAndHiddenIsFalse(long partId);
+    List<Chapter> findAllByPartId(long partId);
 }

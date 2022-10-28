@@ -21,6 +21,8 @@ public class Chapter {
     @JoinColumn(name = "part_id")
     private Part part;
 
+    private Boolean hidden;
+
     @JsonIgnore
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "chapter")
     private List<Question> question;
@@ -28,5 +30,11 @@ public class Chapter {
     public List<Question> getQuestion() {
         Hibernate.initialize(question);
         return question;
+    }
+
+    public Chapter(String name, Part part) {
+        this.name = name;
+        this.part = part;
+        this.hidden = false;
     }
 }

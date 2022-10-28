@@ -10,14 +10,12 @@ import ru.firsov.study.Java.Telegram.Bot.common.BotState;
 import ru.firsov.study.Java.Telegram.Bot.common.Command;
 import ru.firsov.study.Java.Telegram.Bot.common.bean.MessageGenerator;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.*;
-import ru.firsov.study.Java.Telegram.Bot.common.service.MessageService;
-import ru.firsov.study.Java.Telegram.Bot.common.service.QuestionService;
-import ru.firsov.study.Java.Telegram.Bot.common.service.StatisticService;
-import ru.firsov.study.Java.Telegram.Bot.common.service.UserService;
+import ru.firsov.study.Java.Telegram.Bot.common.service.*;
 import ru.firsov.study.Java.Telegram.Bot.telegram.BotFacade;
 import ru.firsov.study.Java.Telegram.Bot.telegram.CallbackAnswer;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -32,15 +30,17 @@ public class JavaTelegramBotFacade implements BotFacade {
     private final UserService userService;
     private final CallbackAnswer callbackAnswer;
     private final QuestionService questionService;
+    private final QuestionAdderService questionAdderService;
     private final StatisticService statisticService;
     private MessageService messageService;
 
-    public JavaTelegramBotFacade(MessageGenerator messageGenerator, UserService userService, CallbackAnswer callbackAnswer, QuestionService questionService, StatisticService statisticService) {
+    public JavaTelegramBotFacade(MessageGenerator messageGenerator, UserService userService, CallbackAnswer callbackAnswer, QuestionService questionService, StatisticService statisticService, QuestionAdderService questionAdderService) {
         this.messageGenerator = messageGenerator;
         this.userService = userService;
         this.callbackAnswer = callbackAnswer;
         this.questionService = questionService;
         this.statisticService = statisticService;
+        this.questionAdderService = questionAdderService;
     }
 
     @Autowired
@@ -210,6 +210,18 @@ public class JavaTelegramBotFacade implements BotFacade {
                     sendMessage(update, "Кеш сброшен");
                     break;
                 }
+                if (messageText.equals(ADM_ADD_QUESTION.getText())){
+                    user.setBotState(ADMIN_ADD_QUESTION_SELECT_PART);
+                    userService.save(user);
+                    sendMessage(update, "Выберите главу");
+                    break;
+                }
+                if (messageText.equals(ADM_ADD_CHAPTER.getText())){
+                    user.setBotState(ADMIN_ADD_CHAPTER_SELECT_PART);
+                    userService.save(user);
+                    sendMessage(update, "Выберите главу");
+                    break;
+                }
             }
             case DEFAULT: {
                 if (messageText.equals(LEARN_BTN.getText()) || messageText.equals(TEST_BTN.getText())) {
@@ -333,6 +345,7 @@ public class JavaTelegramBotFacade implements BotFacade {
             case TESTING: {
                 if (messageText.equals(KNOW_BTN.getText())) {
                     user.getSolvedQuestions().add(user.getSelectedQuestionId());
+                    sendMessage(update, questionService.getQuestionById(user.getSelectedQuestionId()).getAnswer());
                     processNextQuestion(user, update);
                     userService.save(user);
                 }
@@ -353,7 +366,100 @@ public class JavaTelegramBotFacade implements BotFacade {
                 }
                 break;
             }
+            case ADMIN_ADD_CHAPTER_SELECT_PART: {
+                if (handleBackButton(user, messageText, update, ADMIN_PAGE))
+                    break;
+                Part partByPartName = questionService.findPartByPartName(messageText);
+                if (partByPartName != null) {
+                    user.setBotState(ADMIN_ADD_CHAPTER_ENTER);
+                    user.setSelectedPartId(partByPartName.getId());
+                    userService.save(user);
+                    sendMessage(update, "Введите название главы более 3 символов:");
+                } else {
+                    sendMessage(update, "Главы с таким названием не найдено");
+                }
+                break;
+            }
+            case ADMIN_ADD_CHAPTER_ENTER: {
+                if (handleBackButton(user, messageText, update, ADMIN_PAGE))
+                    break;
+                if (messageText.length() > 3) {
+                    user.setBotState(ADMIN_PAGE);
+                    userService.save(user);
+                    questionService.addChapter(messageText, user.getSelectedPartId());
+                    sendMessage(update, "Новая глава с названием: \"" + messageText + "\" была добавлена");
+                } else {
+                    sendMessage(update, "Введите название главы более 3 символов");
+                }
+                break;
+            }
+            case ADMIN_ADD_QUESTION_SELECT_PART: {
+                if (handleBackButton(user, messageText, update, ADMIN_PAGE))
+                    break;
+                Part partByPartName = questionService.findPartByPartName(messageText);
+                if (partByPartName != null) {
+                    user.setBotState(ADMIN_ADD_QUESTION_SELECT_CHAPTER);
+                    user.setSelectedPartId(partByPartName.getId());
+                    userService.save(user);
+                    sendMessage(update, "Выберите тему:");
+                } else {
+                    sendMessage(update, "Главы с таким названием не найдено");
+                }
+                break;
+            }
+            case ADMIN_ADD_QUESTION_SELECT_CHAPTER: {
+                if (handleBackButton(user, messageText, update, ADMIN_ADD_QUESTION_SELECT_PART))
+                    break;
+                Chapter chapter = questionService.findChapterByName(messageText);
+                if (chapter != null) {
+                    user.setSelectedChapterId(chapter.getId());
+                    user.setBotState(ADMIN_ADD_QUESTION_ENTER);
+                    userService.save(user);
+                    sendMessage(update, "Выбранная тема: " + chapter.getName());
+                    sendMessage(update, "Введите ответ и вопрос, в формате `%QUESTION%$:answ:%ANSWER%`");
+                } else {
+                    sendMessage(update, "Темы с таким названием не найдено");
+                }
+                break;
+            }
+            case ADMIN_ADD_QUESTION_ENTER:{
+                if (handleBackButton(user, messageText, update, ADMIN_ADD_QUESTION_SELECT_CHAPTER))
+                    break;
+
+                if (messageText.equals(SAVE_BTN.getText()) || messageText.equals(SAVE_AND_CONTINUE_BTN.getText())) {
+                    questionAdderService.saveQuestion();
+                    sendMessage(update, "Вопрос сохранен");
+                    if (messageText.equals(SAVE_BTN.getText())){
+                        user.setBotState(ADMIN_ADD_QUESTION_SELECT_CHAPTER);
+                        userService.save(user);
+                        sendMessage(update, "Вы вернулись обратно");
+                    }
+                } else {
+                    String[] strings = parseQuestion(messageText, true);
+                    if (strings.length != 2){
+                        sendMessage(update, "Введите ответ и вопрос, в формате `%QUESTION%$[an]%ANSWER%` и после выдели весь текст CTRL+SHIFT+M");
+                    } else {
+                        sendMessage(update, "Вопрос:\n" + strings[0] + "\nОтвет:\n" + strings[1]);
+                        questionAdderService.setTempQuestion(strings[0], strings[1], user.getSelectedChapterId());
+                    }
+                }
+                break;
+            }
+
         }
+    }
+
+    private String[] parseQuestion(String input, boolean withReplace) {
+        if (withReplace) {
+            String replace = input
+                    .replace("[*]", "*")
+                    .replace("[_]", "__")
+                    .replace("[mw]", ":white_small_square:")
+                    .replace("[mb]", ":black_small_square:")
+                    .replace("[``]", "```");
+            return replace.split(":an:");
+        }
+        return input.split(":an:");
     }
 
     private void showQuestion(Update update, User user) {

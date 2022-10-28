@@ -18,6 +18,8 @@ public class Part {
 
     private String name;
 
+    private Boolean hidden;
+
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "part")
     private List<Chapter> chapter;

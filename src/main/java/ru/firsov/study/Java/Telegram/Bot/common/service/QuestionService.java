@@ -29,44 +29,35 @@ public class QuestionService {
     private final PartRepo partRepo;
     private final ChapterRepo chapterRepo;
 
-    public void saveQuestion(Question question) {
-        questionRepo.save(question);
+    public Question saveQuestion(Question question) {
+        return questionRepo.save(question);
     }
 
-    public void savePart(Part part) {
-        partRepo.save(part);
-    }
-
-    public void saveChapter(Chapter chapter) {
-        chapterRepo.save(chapter);
-    }
-
-    public List<Chapter> findAllChaptersByPart(Part part) {
-        return chapterRepo.findAllByPart(part);
-    }
-
-    public List<Part> findAllParts() {
-        return partRepo.findAll();
+    public List<Part> findAllParts(boolean withHidden) {
+        if (withHidden)
+            return partRepo.findAll();
+        else
+            return partRepo.findAllByHiddenIsFalse();
     }
 
     public Part findPartByPartName(String partName) {
         return partRepo.findByName(partName);
     }
 
-    public List<Question> findQuestionsByChapter(Chapter chapter) {
-        return questionRepo.findAllByChapter(chapter);
-    }
 
     public Chapter findChapterByName(String messageText) {
         return chapterRepo.findByName(messageText);
     }
 
-    public List<Chapter> findAllChaptersByPartId(Long selectedPartId) {
-        Optional<Part> byId = partRepo.findById(selectedPartId);
-        if (byId.isPresent()) {
-            return byId.get().getChapter();
-        } else {
-            return new ArrayList<>();
+    public Optional<Chapter> findChapterById(long id) {
+        return chapterRepo.findById(id);
+    }
+
+    public List<Chapter> findAllChaptersByPartId(Long selectedPartId, boolean withHidden) {
+        if (withHidden) {
+            return chapterRepo.findAllByPartId(selectedPartId);
+        }  else {
+            return chapterRepo.findAllByPartIdAndHiddenIsFalse(selectedPartId);
         }
     }
 
@@ -126,4 +117,7 @@ public class QuestionService {
         }
      }
 
+    public void addChapter(String messageText, Long partId) {
+        partRepo.findById(partId).ifPresent(part -> chapterRepo.save(new Chapter(messageText, part)));
+    }
 }

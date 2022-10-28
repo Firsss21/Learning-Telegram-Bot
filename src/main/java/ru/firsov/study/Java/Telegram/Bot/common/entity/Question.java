@@ -10,7 +10,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class Question {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private Long id;
 
     @Column(columnDefinition="TEXT")
@@ -23,4 +23,9 @@ public class Question {
     @JoinColumn(name = "chapter_id")
     private Chapter chapter;
 
+    public Question(String question, String answer, Chapter chapter) {
+        this.question = question;
+        this.answer = answer;
+        this.chapter = chapter;
+    }
 }

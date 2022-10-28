@@ -28,19 +28,14 @@ public class KeyboardService {
     public ReplyKeyboardMarkup getKeyBoardByState(Long chatId) {
         User user = userService.getUser(chatId);
         switch (user.getBotState()) {
+            case ADMIN_ADD_QUESTION_SELECT_PART:
+            case ADMIN_ADD_CHAPTER_SELECT_PART:
             case SELECTING_PART : {
-                List<Part> allParts = questionService.findAllParts();
-                List<String> parts = allParts.stream().map(Part::getName).collect(Collectors.toList());
-                parts.add(BACK_BTN.getText());
-                List<List<String>> lists = transformListToListOfLists(parts, 2);
-                return getKeyBoard(lists);
+                return getChapters();
             }
+            case ADMIN_ADD_QUESTION_SELECT_CHAPTER:
             case SELECTING_CHAPTER : {
-                List<Chapter> allChapters = questionService.findAllChaptersByPartId(user.getSelectedPartId());
-                List<String> chapters = allChapters.stream().map(Chapter::getName).collect(Collectors.toList());
-                chapters.add(BACK_BTN.getText());
-                List<List<String>> lists = transformListToListOfLists(chapters, 2);
-                return getKeyBoard(lists);
+                return getQuestions(user.getSelectedPartId());
             }
             case TESTING : {
                 if (user.isAdmin()) {
@@ -68,7 +63,8 @@ public class KeyboardService {
             case ADMIN_PAGE : {
                 return getKeyBoard(new String[][]{
                         {ADM_STATS_BTN.getText(), ADM_MSG_TO_ALL_BTN.getText()},
-                        {ADM_CACHE_EVICT.getText(), BACK_BTN.getText()}
+                        {ADM_CACHE_EVICT.getText(), ADM_ADD_QUESTION.getText()},
+                        {ADM_ADD_CHAPTER.getText(), BACK_BTN.getText()}
                 });
             }
             case ADMIN_EDIT : {
@@ -77,6 +73,14 @@ public class KeyboardService {
                         {ADM_DELETE.getText()},
                         {BACK_BTN.getText()}
                 });
+            }
+            case ADMIN_ADD_QUESTION_ENTER:{
+                return getKeyBoard(new String[][] {
+                        {SAVE_AND_CONTINUE_BTN.getText(), BACK_BTN.getText()},
+                });
+            }
+            case ADMIN_ADD_CHAPTER_ENTER:{
+                return getKeyBoard(new String[][] {{BACK_BTN.getText()}});
             }
             case DEFAULT : {
                 if (!user.isAdmin())
@@ -90,6 +94,22 @@ public class KeyboardService {
                 });
             }
         }
+    }
+
+    private ReplyKeyboardMarkup getQuestions(long partId) {
+        List<Chapter> allChapters = questionService.findAllChaptersByPartId(partId, false);
+        List<String> chapters = allChapters.stream().map(Chapter::getName).collect(Collectors.toList());
+        chapters.add(BACK_BTN.getText());
+        List<List<String>> lists = transformListToListOfLists(chapters, 2);
+        return getKeyBoard(lists);
+    }
+
+    private ReplyKeyboardMarkup getChapters() {
+        List<Part> allParts = questionService.findAllParts(false);
+        List<String> parts = allParts.stream().map(Part::getName).collect(Collectors.toList());
+        parts.add(BACK_BTN.getText());
+        List<List<String>> lists = transformListToListOfLists(parts, 2);
+        return getKeyBoard(lists);
     }
 
     private ReplyKeyboardMarkup getAdminKeyBoard() {
