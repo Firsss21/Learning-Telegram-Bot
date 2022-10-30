@@ -416,7 +416,7 @@ public class JavaTelegramBotFacade implements BotFacade {
                     user.setBotState(ADMIN_ADD_QUESTION_ENTER);
                     userService.save(user);
                     sendMessage(update, "Выбранная тема: " + chapter.getName());
-                    sendMessage(update, "Введите ответ и вопрос, в формате `%QUESTION%$:answ:%ANSWER%`");
+                    sendMessage(update, "Введите ответ и вопрос, в формате `%QUESTION%$:an:%ANSWER%`");
                 } else {
                     sendMessage(update, "Темы с таким названием не найдено");
                 }

@@ -1,4 +1,4 @@
-package ru.firsov.study.Java.Telegram.Bot;
+package ru.firsov.study.Java.Telegram.Bot.examples;
 
 import org.junit.Assert;
 import org.junit.Test;
