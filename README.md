@@ -27,6 +27,8 @@ It-bot
 
     • Настроенный CI/CD pipeline через GitHub Action
     
+    • Junit & Testcontainer
+    
 -----
 
 ### **Логика приложения:**
