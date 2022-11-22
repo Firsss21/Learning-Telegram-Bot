@@ -34,7 +34,7 @@ public class UserService {
      * @param chatId
      * @return
      */
-    public boolean isChatInit(Long chatId) {
+    public boolean isChatInitted(Long chatId) {
         return getUser(chatId) != null;
     }
 

@@ -15,7 +15,6 @@ import ru.firsov.study.Java.Telegram.Bot.telegram.BotFacade;
 import ru.firsov.study.Java.Telegram.Bot.telegram.CallbackAnswer;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -59,11 +58,13 @@ public class JavaTelegramBotFacade implements BotFacade {
 
         if (update.hasMessage()) {
             chatId = update.getMessage().getChatId();
-            messageText = update.getMessage().getText() == null ? "" : update.getMessage().getText().replace("/", "");
+//            messageText = update.getMessage().getText() == null ? "" : update.getMessage().getText().replace("/", "");
+            messageText = update.getMessage().getText() == null ? "" : update.getMessage().getText();
             userFirstName = update.getMessage().getChat().getFirstName();
         } else if (update.hasChannelPost()) {
             chatId = update.getChannelPost().getChatId();
-            messageText = update.getChannelPost().getText() == null ? "" : update.getChannelPost().getText().replace("/", "");
+//            messageText = update.getChannelPost().getText() == null ? "" : update.getChannelPost().getText().replace("/", "");
+            messageText = update.getChannelPost().getText() == null ? "" : update.getChannelPost().getText();
 
             userFirstName = update.getChannelPost().getChat().getFirstName();
         } else if (update.hasCallbackQuery()) {
@@ -84,12 +85,12 @@ public class JavaTelegramBotFacade implements BotFacade {
             return;
         }
 
-        if (!userService.isChatInit(chatId)) {
-            userService.initChat(chatId, userFirstName);
-            sendMessage(update, messageGenerator.generateStartMessage(userFirstName));
-        } else {
+        if (userService.isChatInitted(chatId)) {
             if (!handleCommand(messageText, update, chatId))
                 handleBotState(update, chatId, messageText);
+        } else {
+            userService.initChat(chatId, userFirstName);
+            sendMessage(update, messageGenerator.generateStartMessage(userFirstName));
         }
     }
 
@@ -106,7 +107,9 @@ public class JavaTelegramBotFacade implements BotFacade {
     private boolean handleCommand(String messageText, Update update, Long chatId) {
         User user = userService.getUser(chatId);
         userService.processUpdateUser(user);
-
+        if (messageText.startsWith("/")) {
+            messageText = messageText.replace("/", "");
+        }
         if (messageText.toUpperCase(Locale.ROOT).equals(HELP.name())) {
             sendMessage(update, messageGenerator.generateHelpMessage());
             return true;
@@ -148,7 +151,6 @@ public class JavaTelegramBotFacade implements BotFacade {
             sendMessage(update, "Статистика сброшена :sunny:");
             return true;
         }
-
         if (messageText.toUpperCase(Locale.ROOT).equals("ADMIN") || messageText.equals(ADM_ENTER.getText())) {
             if (!user.isAdmin()) {
                 String token = UUID.randomUUID().toString();
