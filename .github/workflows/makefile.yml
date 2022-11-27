@@ -40,7 +40,9 @@ jobs:
 #     - name: Build Docker container
 #       run: |
 #           docker build --platform=linux/arm64 -t ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKER_IMAGE }} -o type=registry .
-          
+  upload:
+    runs-on: ubuntu-latest
+    steps:
     - name: Stop container via ssh command
       uses: appleboy/ssh-action@master
       with:
