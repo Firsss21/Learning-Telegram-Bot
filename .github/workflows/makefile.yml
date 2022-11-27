@@ -42,6 +42,7 @@ jobs:
 #           docker build --platform=linux/arm64 -t ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKER_IMAGE }} -o type=registry .
   upload:
     runs-on: ubuntu-latest
+    needs: build
     steps:
     - name: Stop container via ssh command
       uses: appleboy/ssh-action@master
