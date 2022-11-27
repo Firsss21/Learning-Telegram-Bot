@@ -28,4 +28,8 @@ public class Question {
         this.answer = answer;
         this.chapter = chapter;
     }
+    public Question(String question, String answer) {
+        this.question = question;
+        this.answer = answer;
+    }
 }

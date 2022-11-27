@@ -1,22 +1,34 @@
 package ru.firsov.study.Java.Telegram.Bot;
 
+import org.apache.commons.io.FileUtils;
+
+import java.io.*;
+import java.net.URL;
 
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
+import org.telegram.telegrambots.meta.api.objects.Document;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.firsov.study.Java.Telegram.Bot.common.BotState;
 import ru.firsov.study.Java.Telegram.Bot.common.Command;
 import ru.firsov.study.Java.Telegram.Bot.common.bean.MessageGenerator;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.*;
 import ru.firsov.study.Java.Telegram.Bot.common.service.*;
+import ru.firsov.study.Java.Telegram.Bot.telegram.BotConfig;
 import ru.firsov.study.Java.Telegram.Bot.telegram.BotFacade;
 import ru.firsov.study.Java.Telegram.Bot.telegram.CallbackAnswer;
 
-import java.io.IOException;
+import java.io.File;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static ru.firsov.study.Java.Telegram.Bot.common.BotState.*;
 import static ru.firsov.study.Java.Telegram.Bot.common.Command.*;
@@ -102,6 +114,14 @@ public class JavaTelegramBotFacade implements BotFacade {
      */
     private void sendMessage(Update update, String messageText) {
         messageService.sendMessage(update, messageText);
+    }
+
+    private void sendMessage(Update update, InputFile file) {
+        messageService.sendMessage(update, file);
+    }
+
+    private void downloadFile(String filepath) {
+        File file = messageService.downloadFile(filepath);
     }
 
     private boolean handleCommand(String messageText, Update update, Long chatId) {
@@ -212,8 +232,9 @@ public class JavaTelegramBotFacade implements BotFacade {
                     sendMessage(update, "Кеш сброшен");
                     break;
                 }
-                if (messageText.equals(ADM_ADD_QUESTION.getText())){
+                if (messageText.equals(ADM_ADD_QUESTION.getText()) || messageText.equals(ADM_ADD_QUESTIONS.getText())){
                     user.setBotState(ADMIN_ADD_QUESTION_SELECT_PART);
+                    user.setBotStateVariable(messageText.equals(ADM_ADD_QUESTIONS.getText()) ? "MANY" : "SINGLE");
                     userService.save(user);
                     sendMessage(update, "Выберите главу");
                     break;
@@ -418,7 +439,10 @@ public class JavaTelegramBotFacade implements BotFacade {
                     user.setBotState(ADMIN_ADD_QUESTION_ENTER);
                     userService.save(user);
                     sendMessage(update, "Выбранная тема: " + chapter.getName());
-                    sendMessage(update, "Введите ответ и вопрос, в формате `%QUESTION%$:an:%ANSWER%`");
+                    if ("MANY".equals(user.getBotStateVariable()))
+                        sendMessage(update, "Приложите файл в формате `:na:%QUESTION%$:an:%ANSWER%:na:%QUESTION%$:an:%ANSWER%`");
+                    else
+                        sendMessage(update, "Введите ответ и вопрос, в формате `%QUESTION%$:an:%ANSWER%`  и после выдели весь текст CTRL+SHIFT+M");
                 } else {
                     sendMessage(update, "Темы с таким названием не найдено");
                 }
@@ -429,20 +453,42 @@ public class JavaTelegramBotFacade implements BotFacade {
                     break;
 
                 if (messageText.equals(SAVE_BTN.getText()) || messageText.equals(SAVE_AND_CONTINUE_BTN.getText())) {
-                    questionAdderService.saveQuestion();
-                    sendMessage(update, "Вопрос сохранен");
+
+                    if ("MANY".equals(user.getBotStateVariable())){
+                        int cnt = questionAdderService.saveQuestions(user.getSelectedChapterId());
+                        sendMessage(update, "Сохранено "  + cnt + " вопросов");
+                    }
+                    else {
+                        boolean res = questionAdderService.saveQuestion();
+                        sendMessage(update, res ? "Вопрос сохранен" : "Вопрос не сохранен");
+                    }
+
                     if (messageText.equals(SAVE_BTN.getText())){
                         user.setBotState(ADMIN_ADD_QUESTION_SELECT_CHAPTER);
                         userService.save(user);
                         sendMessage(update, "Вы вернулись обратно");
                     }
                 } else {
-                    String[] strings = parseQuestion(messageText, true);
-                    if (strings.length != 2){
-                        sendMessage(update, "Введите ответ и вопрос, в формате `%QUESTION%$[an]%ANSWER%` и после выдели весь текст CTRL+SHIFT+M");
+
+                    if ("MANY".equals(user.getBotStateVariable())) {
+                        List<Question> questions = questionAdderService.parseManyQuestions(getDataFromDocument(update.getMessage().getDocument()));
+                        if (questions.isEmpty()) {
+                            sendMessage(update, "Приложите файл в формате `:na:%QUESTION%$:an:%ANSWER%:na:%QUESTION%$:an:%ANSWER%`");
+                        } else {
+                            for (Question question : questions) {
+                                sendMessage(update, "Вопрос:\n" + question.getQuestion() + "\nОтвет:\n" + question.getAnswer());
+                            }
+                            sendMessage(update, questions.size() + " вопросов в списке");
+                            questionAdderService.setTempQuestions(questions);
+                        }
                     } else {
-                        sendMessage(update, "Вопрос:\n" + strings[0] + "\nОтвет:\n" + strings[1]);
-                        questionAdderService.setTempQuestion(strings[0], strings[1], user.getSelectedChapterId());
+                        Question question = questionAdderService.parseQuestion(messageText, true);
+                        if (question == null) {
+                            sendMessage(update, "Введите ответ и вопрос, в формате `%QUESTION%$[an]%ANSWER%` и после выдели весь текст CTRL+SHIFT+M");
+                        } else {
+                            sendMessage(update, "Вопрос:\n" + question.getQuestion() + "\nОтвет:\n" + question.getAnswer());
+                            questionAdderService.setTempQuestion(question.getQuestion(), question.getAnswer(), user.getSelectedChapterId());
+                        }
                     }
                 }
                 break;
@@ -451,17 +497,8 @@ public class JavaTelegramBotFacade implements BotFacade {
         }
     }
 
-    private String[] parseQuestion(String input, boolean withReplace) {
-        if (withReplace) {
-            String replace = input
-                    .replace("[*]", "*")
-                    .replace("[_]", "__")
-                    .replace("[mw]", ":white_small_square:")
-                    .replace("[mb]", ":black_small_square:")
-                    .replace("[``]", "```");
-            return replace.split(":an:");
-        }
-        return input.split(":an:");
+    private String getDataFromDocument(Document document) {
+        return this.messageService.getDataFromDocument(document);
     }
 
     private void showQuestion(Update update, User user) {

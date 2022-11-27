@@ -24,6 +24,7 @@ public enum Text {
     ADM_EDIT_Q("Редактировать вопрос"),
     ADM_CACHE_EVICT("Сбросить кеш"),
     ADM_ADD_QUESTION(":memo: Добавить вопрос"),
+    ADM_ADD_QUESTIONS(":memo: Добавить несколько вопросов"),
     ADM_ADD_CHAPTER("Добавить главу"),
     SAVE_BTN("Сохранить"),
     SAVE_AND_CONTINUE_BTN("Сохранить и продолжить"),

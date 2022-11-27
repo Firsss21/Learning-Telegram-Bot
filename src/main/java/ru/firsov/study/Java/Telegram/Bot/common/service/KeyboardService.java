@@ -63,8 +63,9 @@ public class KeyboardService {
             case ADMIN_PAGE : {
                 return getKeyBoard(new String[][]{
                         {ADM_STATS_BTN.getText(), ADM_MSG_TO_ALL_BTN.getText()},
-                        {ADM_CACHE_EVICT.getText(), ADM_ADD_QUESTION.getText()},
-                        {ADM_ADD_CHAPTER.getText(), BACK_BTN.getText()}
+                        {ADM_CACHE_EVICT.getText(), ADM_ADD_CHAPTER.getText()},
+                        {ADM_ADD_QUESTION.getText(), ADM_ADD_QUESTIONS.getText()},
+                        {BACK_BTN.getText()}
                 });
             }
             case ADMIN_EDIT : {
