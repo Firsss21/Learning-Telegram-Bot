@@ -83,6 +83,15 @@ public class KeyboardService {
             case ADMIN_ADD_CHAPTER_ENTER:{
                 return getKeyBoard(new String[][] {{BACK_BTN.getText()}});
             }
+            case SETTINGS: {
+                return getKeyBoard(new String[][]
+                        {
+                                {STATS_BTN.getText(), RESET_STATS_BTN.getText()},
+                                {SET_COUNTER_BTN.getText()},
+                                {BACK_BTN.getText()},
+                        }
+                        );
+            }
             case DEFAULT : {
                 if (!user.isAdmin())
                     return getDefaultKeyboard();
@@ -116,9 +125,8 @@ public class KeyboardService {
     private ReplyKeyboardMarkup getAdminKeyBoard() {
             return getKeyBoard(new String[][]{
                     {LEARN_BTN.getText(), TEST_BTN.getText()},
-                    {STATS_BTN.getText(), RESET_STATS_BTN.getText()},
+                    {SETTINGS_BTN.getText()},
 //                    {INFO_BTN.getText(), DONATE_BTN.getText()},
-                    {INFO_BTN.getText()},
                     {ADM_ENTER.getText()}
             });
     }
@@ -182,8 +190,7 @@ public class KeyboardService {
     private ReplyKeyboardMarkup getDefaultKeyboard() {
         return getKeyBoard(new String[][]{
                 {LEARN_BTN.getText(), TEST_BTN.getText()},
-                {STATS_BTN.getText(), RESET_STATS_BTN.getText()},
-                {INFO_BTN.getText()},
+                {SETTINGS_BTN.getText()},
 //                {INFO_BTN.getText(), DONATE_BTN.getText()},
         });
     }

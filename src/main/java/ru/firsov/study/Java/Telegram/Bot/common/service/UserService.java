@@ -1,5 +1,6 @@
 package ru.firsov.study.Java.Telegram.Bot.common.service;
 
+import org.hibernate.sql.Update;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +68,17 @@ public class UserService {
         User chat = getUser(chatId);
         chat.setBotState(botState);
         userRepo.save(chat);
+    }
+
+    /**
+     * Устанавливает новый стейт для чата
+     *
+     * @param chatId
+     * @param botState
+     */
+    public void setBotState(User user, BotState botState) {
+        user.setBotState(botState);
+        userRepo.save(user);
     }
 
     public void setBotStateVariable(Long chatId, String var) {
@@ -143,6 +155,7 @@ public class UserService {
     public void resetStatistic(Long chatId) {
         User byId = getUser(chatId);
         byId.getSolvedQuestions().clear();
+        byId.setQuestionViewed(0);
         userRepo.save(byId);
     }
 

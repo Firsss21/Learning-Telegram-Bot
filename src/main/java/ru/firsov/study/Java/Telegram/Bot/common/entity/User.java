@@ -68,6 +68,10 @@ public class User {
     @Fetch(value = FetchMode.SUBSELECT)
     private Collection<Long> solvedQuestions;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY, optional = true)
+    private QuestionsCounter questionsCounter;
+
     public User(Long chatId, BotState aDefault, String name) {
         this.name = name;
         this.chatId = chatId;

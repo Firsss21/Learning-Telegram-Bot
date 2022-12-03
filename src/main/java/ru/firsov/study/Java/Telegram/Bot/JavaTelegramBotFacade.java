@@ -20,6 +20,7 @@ import ru.firsov.study.Java.Telegram.Bot.common.Command;
 import ru.firsov.study.Java.Telegram.Bot.common.bean.MessageGenerator;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.*;
 import ru.firsov.study.Java.Telegram.Bot.common.service.*;
+import ru.firsov.study.Java.Telegram.Bot.common.state.LearnedToday;
 import ru.firsov.study.Java.Telegram.Bot.telegram.BotConfig;
 import ru.firsov.study.Java.Telegram.Bot.telegram.BotFacade;
 import ru.firsov.study.Java.Telegram.Bot.telegram.CallbackAnswer;
@@ -43,15 +44,17 @@ public class JavaTelegramBotFacade implements BotFacade {
     private final QuestionService questionService;
     private final QuestionAdderService questionAdderService;
     private final StatisticService statisticService;
+    private final QuestionsLearnedTodayCounterService questionsLearnedTodayCounterService;
     private MessageService messageService;
 
-    public JavaTelegramBotFacade(MessageGenerator messageGenerator, UserService userService, CallbackAnswer callbackAnswer, QuestionService questionService, StatisticService statisticService, QuestionAdderService questionAdderService) {
+    public JavaTelegramBotFacade(MessageGenerator messageGenerator, UserService userService, CallbackAnswer callbackAnswer, QuestionService questionService, StatisticService statisticService, QuestionAdderService questionAdderService, QuestionsLearnedTodayCounterService questionsLearnedTodayCounterService) {
         this.messageGenerator = messageGenerator;
         this.userService = userService;
         this.callbackAnswer = callbackAnswer;
         this.questionService = questionService;
         this.statisticService = statisticService;
         this.questionAdderService = questionAdderService;
+        this.questionsLearnedTodayCounterService = questionsLearnedTodayCounterService;
     }
 
     @Autowired
@@ -135,11 +138,6 @@ public class JavaTelegramBotFacade implements BotFacade {
             return true;
         }
 
-        if (messageText.equals(INFO_BTN.getText()) || messageText.toUpperCase(Locale.ROOT).equals(INFO.name())) {
-            sendMessage(update, messageGenerator.generateInfoMessage());
-            return true;
-        }
-
         if (messageText.toUpperCase(Locale.ROOT).equals(START.name())) {
             userService.setBotState(chatId, DEFAULT);
             sendMessage(update, messageGenerator.generateStartMessage(update.getMessage().getChat().getFirstName()));
@@ -156,8 +154,8 @@ public class JavaTelegramBotFacade implements BotFacade {
             return true;
         }
 
-        if (messageText.toUpperCase(Locale.ROOT).equals(STATISTIC.name()) || messageText.equals(STATS_BTN.getText())) {
-            sendMessage(update, userService.getStatistic(chatId));
+        if (messageText.equals(INFO_BTN.getText()) || messageText.toUpperCase(Locale.ROOT).equals(INFO.name())) {
+            sendMessage(update, messageGenerator.generateInfoMessage());
             return true;
         }
 
@@ -166,11 +164,6 @@ public class JavaTelegramBotFacade implements BotFacade {
             return true;
         }
 
-        if (messageText.toUpperCase(Locale.ROOT).equals(RESET.name()) || messageText.equals(RESET_STATS_BTN.getText())) {
-            userService.resetStatistic(chatId);
-            sendMessage(update, "Статистика сброшена :sunny:");
-            return true;
-        }
         if (messageText.toUpperCase(Locale.ROOT).equals("ADMIN") || messageText.equals(ADM_ENTER.getText())) {
             if (!user.isAdmin()) {
                 String token = UUID.randomUUID().toString();
@@ -256,6 +249,12 @@ public class JavaTelegramBotFacade implements BotFacade {
                     userService.save(user);
                     sendMessage(update, "Выберите главу");
                 }
+                if (messageText.equals(SETTINGS_BTN.getText()) || messageText.equals(SETTINGS_BTN.getText())) {
+                    user.setBotState(SETTINGS);
+                    userService.save(user);
+                    sendMessage(update, "Ваши настройки:");
+                }
+
                 break;
             }
             case SELECTING_PART: {
@@ -493,10 +492,60 @@ public class JavaTelegramBotFacade implements BotFacade {
                 }
                 break;
             }
-
+            case SETTINGS: {
+                if (handleBackButton(user, messageText, update, DEFAULT))
+                    break;
+                if (messageText.equals(STATS_BTN.getText())) {
+                    sendMessage(update, userService.getStatistic(chatId));
+                    break;
+                }
+                if (messageText.equals(RESET_STATS_BTN.getText())) {
+                    userService.resetStatistic(chatId);
+                    sendMessage(update, "Статистика сброшена :sunny:");
+                    break;
+                }
+                if (messageText.equals(SET_COUNTER_BTN.getText())) {
+                    user.setBotState(SETTING_COUNTER);
+                    String msg = "";
+                    QuestionsCounter cnt = user.getQuestionsCounter();
+                    if (cnt != null)
+                        msg = "Ваш текущий лимит: " + cnt.getLimit();
+                    else
+                        msg = "У вас еще нет лимита.";
+                    msg = msg + " Вы можете ввести новый лимит. От 0 до бесконечности.";
+                    msg = msg + " Для сброса счетчика введите -1";
+                    sendMessage(update, msg);
+                    userService.save(user);
+                    break;
+                }
+                break;
+            }
+            case SETTING_COUNTER: {
+                if (handleBackButton(user, messageText, update, SETTINGS))
+                    break;
+                int num;
+                try {
+                    num = Integer.valueOf(messageText);
+                    if (num > 0) {
+                        questionsLearnedTodayCounterService.setNewCounter(user, num);
+                        userService.setBotState(user, SETTINGS);
+                        sendMessage(update, "Ваш новый счетчик пройденных вопросов в день: " + num);
+                    } else {
+                        if (num == -1) {
+                            questionsLearnedTodayCounterService.dropCounter(user);
+                            userService.setBotState(user, SETTINGS);
+                            sendMessage(update, "Вы сбросили счетчик");
+                        } else {
+                            sendMessage(update, "Введите число больше 0");
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    sendMessage(update, "Введите корректное число");
+                }
+                break;
+            }
         }
     }
-
     private String getDataFromDocument(Document document) {
         return this.messageService.getDataFromDocument(document);
     }
@@ -532,11 +581,16 @@ public class JavaTelegramBotFacade implements BotFacade {
 
         user.setSelectedQuestionId(question.getId());
 
+
         if (user.getBotState() == LEARNING) {
             user.incrementQuestionViewed();
         }
 
         userService.save(user);
+
+        LearnedToday learnedToday = questionsLearnedTodayCounterService.increaseLearnedToday(user);
+        if (learnedToday.getDescription() != null)
+            sendMessage(update, learnedToday.getDescription());
 
         showQuestion(update, user);
     }

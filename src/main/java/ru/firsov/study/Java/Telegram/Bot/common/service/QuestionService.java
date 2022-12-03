@@ -71,6 +71,11 @@ public class QuestionService {
         }
     }
 
+    @Cacheable(value = "all_questions_count")
+    public long getQuestionsCount() {
+        return questionRepo.count();
+    }
+
     @Cacheable(value = "all_questions")
     public List<Question> findAllQuestions() {
         List<Question> questions = new ArrayList<>();
@@ -83,7 +88,7 @@ public class QuestionService {
         chapterRepo.findAll().forEach(chapters::add);
         return chapters;
     }
-    @CacheEvict(allEntries = true, value = {"chapter_questions", "question", "all_questions", "all_chapters"})
+    @CacheEvict(allEntries = true, value = {"chapter_questions", "question", "all_questions", "all_chapters", "all_questions_count"})
     public void evictAllQuestions() {
     }
 

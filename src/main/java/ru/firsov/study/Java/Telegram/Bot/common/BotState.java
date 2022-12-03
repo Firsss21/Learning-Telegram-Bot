@@ -21,5 +21,9 @@ public enum BotState {
 
     ADMIN_ADD_CHAPTER_SELECT_PART,
     ADMIN_ADD_CHAPTER_ENTER,
+
+    SETTINGS,
+    SETTING_COUNTER,
+
     ;
 }

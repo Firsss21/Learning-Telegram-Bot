@@ -28,6 +28,8 @@ public enum Text {
     ADM_ADD_CHAPTER("Добавить главу"),
     SAVE_BTN("Сохранить"),
     SAVE_AND_CONTINUE_BTN("Сохранить и продолжить"),
+    SET_COUNTER_BTN(":white_check_mark: Поставить цель"),
+    SETTINGS_BTN(":wrench: Настройки"),
 
     ;
 

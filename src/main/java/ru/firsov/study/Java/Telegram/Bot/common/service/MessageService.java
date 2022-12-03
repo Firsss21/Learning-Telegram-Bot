@@ -118,7 +118,7 @@ public class MessageService {
 
     @SneakyThrows
     public void sendMessage(Update update, InputFile file) {
-        SendDocument.SendDocumentBuilder builder = SendDocument.builder().chatId(getChatId(update)).caption("kek").document(file);
+        SendDocument.SendDocumentBuilder builder = SendDocument.builder().chatId(getChatId(update)).caption("Файл: ").document(file);
         telegramBot.execute(builder.build());
     }
 
