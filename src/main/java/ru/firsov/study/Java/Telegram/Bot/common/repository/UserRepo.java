@@ -30,4 +30,6 @@ public interface UserRepo extends JpaRepository<User, Long> {
     Integer getTotalActions();
 
     List<User> findTop10ByOrderByActionsCountDesc();
+
+    List<User> findAllByQuestionsCounterNotNull();
 }

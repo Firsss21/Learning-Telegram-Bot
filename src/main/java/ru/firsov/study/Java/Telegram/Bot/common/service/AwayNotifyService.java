@@ -52,5 +52,8 @@ public class AwayNotifyService implements NotifyService {
         user.getMessages().add(infoMessage);
         userService.save(user);
     }
+    private void sendMessage(User user, String message) {
+        messageService.sendMessage(user.getChatId(), message);
+    }
 
 }

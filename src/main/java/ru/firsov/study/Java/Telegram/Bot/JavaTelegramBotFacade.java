@@ -509,7 +509,7 @@ public class JavaTelegramBotFacade implements BotFacade {
                     String msg = "";
                     QuestionsCounter cnt = user.getQuestionsCounter();
                     if (cnt != null)
-                        msg = "Ваш текущий лимит: " + cnt.getLimit();
+                        msg = "Ваш текущий лимит: " + cnt.getLimit() + ", сегодня пройдено " + cnt.getSolved();
                     else
                         msg = "У вас еще нет лимита.";
                     msg = msg + " Вы можете ввести новый лимит. От 0 до бесконечности.";

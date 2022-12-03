@@ -210,4 +210,8 @@ public class UserService {
     public List<User> getTop10ByActions() {
         return userRepo.findTop10ByOrderByActionsCountDesc();
     }
+
+    public List<User> getUsersWithCounterActive() {
+        return userRepo.findAllByQuestionsCounterNotNull();
+    }
 }

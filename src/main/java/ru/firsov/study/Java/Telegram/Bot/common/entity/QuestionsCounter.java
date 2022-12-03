@@ -30,6 +30,16 @@ public class QuestionsCounter {
 
     private Integer solved;
 
+    public Integer getSolved() {
+        updateSolved();
+        return solved;
+    }
+
+    private void updateSolved() {
+        if (dropTime == null) dropTime = getEndOfTheDayTime();
+        if (LocalDateTime.now().isAfter(dropTime)) this.solved = 0;
+    }
+
     @Column(name="limit_value")
     private Integer limit;
 
@@ -37,8 +47,7 @@ public class QuestionsCounter {
     private LocalDateTime dropTime;
 
     public void increaseCounter() {
-        if (dropTime == null) dropTime = getEndOfTheDayTime();
-        if (LocalDateTime.now().isAfter(dropTime)) this.solved = 0;
+        updateSolved();
         this.solved++;
     }
 
