@@ -37,7 +37,10 @@ public class QuestionsCounter {
 
     private void updateSolved() {
         if (dropTime == null) dropTime = getEndOfTheDayTime();
-        if (LocalDateTime.now().isAfter(dropTime)) this.solved = 0;
+        if (LocalDateTime.now().isAfter(dropTime)) {
+            this.solved = 0;
+            this.dropTime = getEndOfTheDayTime();
+        }
     }
 
     @Column(name="limit_value")

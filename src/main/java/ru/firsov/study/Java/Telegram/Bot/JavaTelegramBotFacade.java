@@ -506,16 +506,18 @@ public class JavaTelegramBotFacade implements BotFacade {
                 }
                 if (messageText.equals(SET_COUNTER_BTN.getText())) {
                     user.setBotState(SETTING_COUNTER);
+                    userService.save(user);
                     String msg = "";
                     QuestionsCounter cnt = user.getQuestionsCounter();
-                    if (cnt != null)
-                        msg = "Ваш текущий лимит: " + cnt.getLimit() + ", сегодня пройдено " + cnt.getSolved();
-                    else
+                    if (cnt != null) {
+                        msg = "Ваш текущий лимит: " + cnt.getLimit() + ", сегодня пройдено: " + cnt.getSolved() + ".";
+                    }
+                    else {
                         msg = "У вас еще нет лимита.";
+                    }
                     msg = msg + " Вы можете ввести новый лимит. От 0 до бесконечности.";
                     msg = msg + " Для сброса счетчика введите -1";
                     sendMessage(update, msg);
-                    userService.save(user);
                     break;
                 }
                 break;

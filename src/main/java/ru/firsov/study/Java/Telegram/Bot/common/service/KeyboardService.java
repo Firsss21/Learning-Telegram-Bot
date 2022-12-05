@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.firsov.study.Java.Telegram.Bot.common.BotState.SETTING_COUNTER;
 import static ru.firsov.study.Java.Telegram.Bot.telegram.Text.*;
 
 @Service
@@ -80,7 +81,8 @@ public class KeyboardService {
                         {SAVE_AND_CONTINUE_BTN.getText(), BACK_BTN.getText()},
                 });
             }
-            case ADMIN_ADD_CHAPTER_ENTER:{
+            case ADMIN_ADD_CHAPTER_ENTER:
+            case SETTING_COUNTER: {
                 return getKeyBoard(new String[][] {{BACK_BTN.getText()}});
             }
             case SETTINGS: {

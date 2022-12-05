@@ -30,7 +30,7 @@ public class QuestionsLearnedTodayCounterService {
 
         if (previous < counter.getLimit() && after >= counter.getLimit()) {
             return new FullyLearnedToday(counter.getLimit(), user.getSolvedQuestions().size(), (int) questionService.getQuestionsCount());
-        } else if (after < counter.getLimit() && (counter.getLimit() - after) % 10 == 0){
+        } else if (after < counter.getLimit() && (counter.getLimit() - after) % 10 == 0 && after > 0){
             return new RemainingSomethingLearnedToday(counter.getLimit(), after);
         }
         return new NothingHappendLearnedToday();
