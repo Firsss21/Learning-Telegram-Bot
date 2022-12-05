@@ -21,7 +21,7 @@ public class QuestionRemainingService implements NotifyService {
     private final MessageService messageService;
 
     private UserService userService;
-    @Scheduled(cron = "0 18 * * 1-5")
+    @Scheduled(cron = "0 0 16 * * MON-FRI")
     public void notifyUsers() {
         List<User> users = userService.getUsersWithCounterActive();
         String message = "Привет! Сегодня у тебя еще не пройдено [q] вопросов";
