@@ -21,7 +21,7 @@ public class Part {
     private Boolean hidden;
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "part")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "part")
     private List<Chapter> chapter;
 
     public List<Chapter> getChapter() {

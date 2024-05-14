@@ -9,11 +9,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.Chapter;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.Part;
+import ru.firsov.study.Java.Telegram.Bot.common.entity.Question;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.User;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.firsov.study.Java.Telegram.Bot.common.BotState.SETTING_COUNTER;
@@ -32,11 +31,11 @@ public class KeyboardService {
             case ADMIN_ADD_QUESTION_SELECT_PART:
             case ADMIN_ADD_CHAPTER_SELECT_PART:
             case SELECTING_PART : {
-                return getChapters();
+                return getChapters(user);
             }
             case ADMIN_ADD_QUESTION_SELECT_CHAPTER:
             case SELECTING_CHAPTER : {
-                return getQuestions(user.getSelectedPartId());
+                return getQuestions(user);
             }
             case TESTING : {
                 if (user.isAdmin()) {
@@ -108,17 +107,36 @@ public class KeyboardService {
         }
     }
 
-    private ReplyKeyboardMarkup getQuestions(long partId) {
-        List<Chapter> allChapters = questionService.findAllChaptersByPartId(partId, false);
-        List<String> chapters = allChapters.stream().map(Chapter::getName).collect(Collectors.toList());
+    private ReplyKeyboardMarkup getQuestions(User user) {
+        List<Chapter> allChapters = questionService.findAllChaptersByPartId(user.getSelectedPartId(), false);
+        List<String> chapters = allChapters
+                .stream()
+                .map(s -> {
+                    long solved = s.getQuestion().stream().filter(q -> user.getSolvedQuestions().contains(q.getId())).count();
+                    long max = s.getQuestion().size();
+                    return s.getName() + " (" + solved + " из " + max + ")";
+                })
+                .collect(Collectors.toList());
+
         chapters.add(BACK_BTN.getText());
         List<List<String>> lists = transformListToListOfLists(chapters, 2);
         return getKeyBoard(lists);
     }
 
-    private ReplyKeyboardMarkup getChapters() {
+    private ReplyKeyboardMarkup getChapters(User user) {
         List<Part> allParts = questionService.findAllParts(false);
-        List<String> parts = allParts.stream().map(Part::getName).collect(Collectors.toList());
+        List<String> parts = allParts
+                .stream()
+                .map(p -> {
+                    long solved = p.getChapter().stream().mapToLong(it -> {
+                        return it.getQuestion().stream().filter(q -> user.getSolvedQuestions().contains(q.getId())).count();
+                    }).sum();
+                    long max = p.getChapter().stream().mapToLong(it -> {
+                        return it.getQuestion().size();
+                    }).sum();
+                    return p.getName() + " (" + solved + " из " + max + ")";
+                })
+                .collect(Collectors.toList());
         parts.add(BACK_BTN.getText());
         List<List<String>> lists = transformListToListOfLists(parts, 2);
         return getKeyBoard(lists);

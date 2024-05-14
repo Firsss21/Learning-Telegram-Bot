@@ -32,4 +32,8 @@ public class Question {
         this.question = question;
         this.answer = answer;
     }
+
+    public boolean isSolved(User user) {
+        return user.getSolvedQuestions().contains(id);
+    }
 }

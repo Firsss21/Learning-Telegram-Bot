@@ -26,10 +26,9 @@ public class AwayNotifyService implements NotifyService {
 
     @Scheduled(fixedDelayString = "${user.notifyCheck}")
     public void notifyUsers() {
-        sendToAway(60L * 60 * 1000 * 24 * 3, AWAY_3DAY);
-        sendToAway(60L * 60 * 1000 * 24 * 7, AWAY_7DAY);
         sendToAway(60L * 60 * 1000 * 24 * 30, AWAY_30DAY);
-
+        sendToAway(60L * 60 * 1000 * 24 * 7, AWAY_7DAY);
+        sendToAway(60L * 60 * 1000 * 24 * 3, AWAY_3DAY);
     }
 
     public void sendToAway(long timeAway, MessageType type) {
@@ -41,16 +40,25 @@ public class AwayNotifyService implements NotifyService {
                     messages.stream().filter(e -> e.getMessageType().equals(type)).allMatch(e -> e.getDate().toInstant().toEpochMilli() < notActiveUser.getLastActivity())
             ) {
                 sendTemplatedMessage(type, notActiveUser);
+                if (type == AWAY_30DAY) {
+                    saveSendedMessage(AWAY_7DAY, notActiveUser);
+                    saveSendedMessage(AWAY_3DAY, notActiveUser);
+                } else if (type == AWAY_7DAY) {
+                    saveSendedMessage(AWAY_3DAY, notActiveUser);
+                }
             }
         }
     }
 
-    private void sendTemplatedMessage(MessageType type, User user) {
-        messageService.sendMessage(user.getChatId(), type.getMessage());
+    private void saveSendedMessage(MessageType type, User user) {
         InfoMessage infoMessage = new InfoMessage(user, type);
         infoMessageRepo.save(infoMessage);
         user.getMessages().add(infoMessage);
         userService.save(user);
+    }
+    private void sendTemplatedMessage(MessageType type, User user) {
+        messageService.sendMessage(user.getChatId(), type.getMessage());
+        saveSendedMessage(type, user);
     }
     private void sendMessage(User user, String message) {
         messageService.sendMessage(user.getChatId(), message);

@@ -101,8 +101,16 @@ public class JavaTelegramBotFacade implements BotFacade {
         }
 
         if (userService.isChatInitted(chatId)) {
-            if (!handleCommand(messageText, update, chatId))
-                handleBotState(update, chatId, messageText);
+            try {
+                if (!handleCommand(messageText, update, chatId))
+                    handleBotState(update, chatId, messageText);
+            } catch (Exception e) {
+                e.printStackTrace();
+                User user = userService.getUser(chatId);
+                user.setBotState(DEFAULT);
+                userService.save(user);
+                sendMessage(update, "Произошла ошибка. Вы вернулись на главную");
+            }
         } else {
             userService.initChat(chatId, userFirstName);
             sendMessage(update, messageGenerator.generateStartMessage(userFirstName));
@@ -264,7 +272,8 @@ public class JavaTelegramBotFacade implements BotFacade {
                     sendMessage(update, "Вы вернулись к выбору главы");
                     break;
                 }
-                Part partByPartName = questionService.findPartByPartName(messageText);
+                String partName = messageText.substring(0, messageText.lastIndexOf("("));
+                Part partByPartName = questionService.findPartByPartName(partName);
                 if (partByPartName != null) {
                     user.setBotState(SELECTING_CHAPTER);
                     user.setSelectedPartId(partByPartName.getId());
@@ -282,8 +291,8 @@ public class JavaTelegramBotFacade implements BotFacade {
                     sendMessage(update, "Вы вернулись к выбору главы");
                     break;
                 }
-
-                Chapter chapter = questionService.findChapterByName(messageText);
+                String chapterName = messageText.substring(0, messageText.lastIndexOf("("));
+                Chapter chapter = questionService.findChapterByName(chapterName);
                 if (chapter != null) {
                     user.setSelectedChapterId(chapter.getId());
 
