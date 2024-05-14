@@ -272,7 +272,7 @@ public class JavaTelegramBotFacade implements BotFacade {
                     sendMessage(update, "Вы вернулись к выбору главы");
                     break;
                 }
-                String partName = messageText.substring(0, messageText.lastIndexOf("("));
+                String partName = messageText.substring(0, messageText.lastIndexOf("(")).trim();
                 Part partByPartName = questionService.findPartByPartName(partName);
                 if (partByPartName != null) {
                     user.setBotState(SELECTING_CHAPTER);
@@ -291,7 +291,7 @@ public class JavaTelegramBotFacade implements BotFacade {
                     sendMessage(update, "Вы вернулись к выбору главы");
                     break;
                 }
-                String chapterName = messageText.substring(0, messageText.lastIndexOf("("));
+                String chapterName = messageText.substring(0, messageText.lastIndexOf("(")).trim();
                 Chapter chapter = questionService.findChapterByName(chapterName);
                 if (chapter != null) {
                     user.setSelectedChapterId(chapter.getId());
