@@ -31,7 +31,7 @@ public class KeyboardService {
             case ADMIN_ADD_QUESTION_SELECT_PART:
             case ADMIN_ADD_CHAPTER_SELECT_PART:
             case SELECTING_PART : {
-                return getChapters(user);
+                return getChapters(user, true);
             }
             case ADMIN_ADD_QUESTION_SELECT_CHAPTER:
             case SELECTING_CHAPTER : {
