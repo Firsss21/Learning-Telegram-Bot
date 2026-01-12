@@ -443,7 +443,8 @@ public class JavaTelegramBotFacade implements BotFacade {
             case ADMIN_ADD_QUESTION_SELECT_CHAPTER: {
                 if (handleBackButton(user, messageText, update, ADMIN_ADD_QUESTION_SELECT_PART))
                     break;
-                Chapter chapter = questionService.findChapterByName(messageText);
+                String name = messageText.substring(0, messageText.lastIndexOf("(")).trim();
+                Chapter chapter = questionService.findChapterByName(name);
                 if (chapter != null) {
                     user.setSelectedChapterId(chapter.getId());
                     user.setBotState(ADMIN_ADD_QUESTION_ENTER);
