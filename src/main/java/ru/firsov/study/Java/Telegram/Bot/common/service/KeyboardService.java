@@ -123,11 +123,12 @@ public class KeyboardService {
         return getKeyBoard(lists);
     }
 
-    private ReplyKeyboardMarkup getChapters(User user) {
+    private ReplyKeyboardMarkup getChapters(User user, boolean withCountResolved) {
         List<Part> allParts = questionService.findAllParts(false);
         List<String> parts = allParts
                 .stream()
                 .map(p -> {
+                    if (!withCountResolved) return p.getName();
                     long solved = p.getChapter().stream().mapToLong(it -> {
                         return it.getQuestion().stream().filter(q -> user.getSolvedQuestions().contains(q.getId())).count();
                     }).sum();

@@ -400,7 +400,8 @@ public class JavaTelegramBotFacade implements BotFacade {
             case ADMIN_ADD_CHAPTER_SELECT_PART: {
                 if (handleBackButton(user, messageText, update, ADMIN_PAGE))
                     break;
-                Part partByPartName = questionService.findPartByPartName(messageText);
+                String name = messageText.substring(0, messageText.lastIndexOf("(")).trim();
+                Part partByPartName = questionService.findPartByPartName(name);
                 if (partByPartName != null) {
                     user.setBotState(ADMIN_ADD_CHAPTER_ENTER);
                     user.setSelectedPartId(partByPartName.getId());
@@ -427,7 +428,8 @@ public class JavaTelegramBotFacade implements BotFacade {
             case ADMIN_ADD_QUESTION_SELECT_PART: {
                 if (handleBackButton(user, messageText, update, ADMIN_PAGE))
                     break;
-                Part partByPartName = questionService.findPartByPartName(messageText);
+                String name = messageText.substring(0, messageText.lastIndexOf("(")).trim();
+                Part partByPartName = questionService.findPartByPartName(name);
                 if (partByPartName != null) {
                     user.setBotState(ADMIN_ADD_QUESTION_SELECT_CHAPTER);
                     user.setSelectedPartId(partByPartName.getId());
