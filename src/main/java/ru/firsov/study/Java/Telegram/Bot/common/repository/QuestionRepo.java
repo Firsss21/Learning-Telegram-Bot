@@ -14,7 +14,7 @@ public interface QuestionRepo extends CrudRepository<Question, Long> {
 
     @Query(value = "SELECT * FROM question q " +
             "LEFT JOIN user_solved_question usq ON usq.solved_question = q.id AND usq.user_id = :userId " +
-            "WHERE usq.id IS NULL " +
+            "WHERE usq.user_id IS NULL " +
             "ORDER BY rand() " +
             "LIMIT 1 ", nativeQuery = true)
     Question findRandomNotSolvedQuestion(@Param("userId") Long userId);
@@ -22,7 +22,7 @@ public interface QuestionRepo extends CrudRepository<Question, Long> {
     @Query(value = "SELECT * FROM question q " +
             "LEFT JOIN user_solved_question usq ON usq.solved_question = q.id AND usq.user_id = :userId " +
             "JOIN chapter ch ON q.chapter_id = ch.id " +
-            "WHERE usq.id IS NULL AND q.part_id = :partId " +
+            "WHERE usq.user_id IS NULL AND q.part_id = :partId " +
             "ORDER BY rand() " +
             "LIMIT 1 ", nativeQuery = true)
     Question findRandomNotSolvedQuestionByPart(@Param("userId") Long userId, @Param("partId") Long partId);
@@ -30,7 +30,7 @@ public interface QuestionRepo extends CrudRepository<Question, Long> {
     @Query(value = "SELECT * FROM question q " +
             "LEFT JOIN user_solved_question usq ON usq.solved_question = q.id AND usq.user_id = :userId " +
             "JOIN chapter ch ON q.chapter_id = ch.id " +
-            "WHERE usq.id IS NULL AND q.part_id = :partId AND ch.id = :chapterId " +
+            "WHERE usq.user_id IS NULL AND q.part_id = :partId AND ch.id = :chapterId " +
             "ORDER BY rand() " +
             "LIMIT 1 ", nativeQuery = true)
     Question findRandomNotSolvedQuestionByPartAndChapter(@Param("userId") Long userId, @Param("partId") Long partId, @Param("chapterId") Long chapterId);
