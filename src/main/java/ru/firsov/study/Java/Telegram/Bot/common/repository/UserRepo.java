@@ -3,6 +3,7 @@ package ru.firsov.study.Java.Telegram.Bot.common.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import ru.firsov.study.Java.Telegram.Bot.common.entity.Rule;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.User;
 
 import java.util.List;
@@ -32,4 +33,6 @@ public interface UserRepo extends JpaRepository<User, Long> {
     List<User> findTop10ByOrderByActionsCountDesc();
 
     List<User> findAllByQuestionsCounterNotNull();
+
+    List<User> findAllByRightsContains(Rule rule);
 }

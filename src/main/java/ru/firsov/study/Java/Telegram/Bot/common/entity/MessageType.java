@@ -14,6 +14,9 @@ public enum MessageType {
     AWAY_30DAY(
             "Привет.. Целый месяц тебя уже не видно, все, забил? Думал может все-таки поизучаем что-нибудь :point_right: :point_left:"
     ),
+    REBOOTED(
+            "Привет.. Я ребутнулся :point_right: :point_left:"
+    ),
     ;
 
     @Getter

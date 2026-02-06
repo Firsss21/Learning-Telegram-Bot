@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.firsov.study.Java.Telegram.Bot.common.BotState;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.Chapter;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.Question;
+import ru.firsov.study.Java.Telegram.Bot.common.entity.Rule;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.User;
 import ru.firsov.study.Java.Telegram.Bot.common.repository.UserRepo;
 
@@ -157,6 +158,10 @@ public class UserService {
         byId.getSolvedQuestions().clear();
         byId.setQuestionViewed(0);
         userRepo.save(byId);
+    }
+
+    public List<User> getUsersWithRights(Rule rule) {
+        return userRepo.findAllByRightsContains(rule);
     }
 
     public List<User> getUsersNotActiveFrom(Long time) {
