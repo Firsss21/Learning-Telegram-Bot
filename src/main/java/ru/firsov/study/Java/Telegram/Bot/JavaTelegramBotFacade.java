@@ -264,6 +264,19 @@ public class JavaTelegramBotFacade implements BotFacade {
                     sendMessage(update, "Вы вернулись к выбору главы");
                     break;
                 }
+                if (messageText.equals(RAND_BTN.getText())) {
+                    if (user.getBotStateVariable().equals(TESTING.name())) {
+                        user.setBotState(TESTING);
+                    }
+                    if (user.getBotStateVariable().equals(LEARNING.name())) {
+                        user.setBotState(LEARNING);
+                    }
+                    user.setSelectedPartId(0L);
+                    user.setBotStateVariable(RANDOM.name());
+                    sendMessage(update, "Случайные вопросы");
+                    processNextQuestion(user, update);
+                    break;
+                }
                 String partName = messageText.substring(0, messageText.lastIndexOf("(")).trim();
                 Part partByPartName = questionService.findPartByPartName(partName);
                 if (partByPartName != null) {
@@ -283,6 +296,7 @@ public class JavaTelegramBotFacade implements BotFacade {
                     sendMessage(update, "Вы вернулись к выбору главы");
                     break;
                 }
+
                 if (messageText.equals(RAND_BTN.getText())) {
                     if (user.getBotStateVariable().equals(TESTING.name())) {
                         user.setBotState(TESTING);
@@ -291,7 +305,7 @@ public class JavaTelegramBotFacade implements BotFacade {
                         user.setBotState(LEARNING);
                     }
                     user.setBotStateVariable(RANDOM.name());
-                    sendMessage(update, "Случайные вопросы");
+                    sendMessage(update, "Случайные вопросы по выбранной главе");
                     processNextQuestion(user, update);
                     break;
                 }

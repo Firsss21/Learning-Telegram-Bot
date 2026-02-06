@@ -104,6 +104,9 @@ public class QuestionService {
     public Question getNextQuestion(User user) {
 
         if (user.getBotStateVariable().equals(RANDOM.name())) {
+            if (user.getSelectedPartId() != 0) {
+                return questionRepo.findRandomNotSolvedQuestionByPart(user.getId(), user.getSelectedPartId());
+            }
             return questionRepo.findRandomNotSolvedQuestion(user.getId());
         }
         Question question = null;

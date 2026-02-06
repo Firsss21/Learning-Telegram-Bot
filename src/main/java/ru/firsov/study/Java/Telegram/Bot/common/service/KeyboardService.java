@@ -9,14 +9,13 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.Chapter;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.Part;
-import ru.firsov.study.Java.Telegram.Bot.common.entity.Question;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.User;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ru.firsov.study.Java.Telegram.Bot.common.BotState.SELECTING_CHAPTER;
 import static ru.firsov.study.Java.Telegram.Bot.common.BotState.SELECTING_PART;
-import static ru.firsov.study.Java.Telegram.Bot.common.BotState.SETTING_COUNTER;
 import static ru.firsov.study.Java.Telegram.Bot.telegram.Text.*;
 
 @Service
@@ -36,7 +35,7 @@ public class KeyboardService {
             }
             case ADMIN_ADD_QUESTION_SELECT_CHAPTER:
             case SELECTING_CHAPTER : {
-                return getQuestions(user);
+                return getChaptersWithSolvedQuestions(user, user.getBotState() == SELECTING_CHAPTER);
             }
             case TESTING : {
                 if (user.isAdmin()) {
@@ -108,7 +107,7 @@ public class KeyboardService {
         }
     }
 
-    private ReplyKeyboardMarkup getQuestions(User user) {
+    private ReplyKeyboardMarkup getChaptersWithSolvedQuestions(User user, boolean withRandomQuestions) {
         List<Chapter> allChapters = questionService.findAllChaptersByPartId(user.getSelectedPartId(), false);
         List<String> chapters = allChapters
                 .stream()
@@ -118,7 +117,9 @@ public class KeyboardService {
                     return s.getName() + " (" + solved + " из " + max + ")";
                 })
                 .collect(Collectors.toList());
-
+        if (withRandomQuestions) {
+            chapters.add(RAND_BTN.getText());
+        }
         chapters.add(BACK_BTN.getText());
         List<List<String>> lists = transformListToListOfLists(chapters, 2);
         return getKeyBoard(lists);
@@ -139,10 +140,10 @@ public class KeyboardService {
                     return p.getName() + " (" + solved + " из " + max + ")";
                 })
                 .collect(Collectors.toList());
-        parts.add(BACK_BTN.getText());
         if (withRandomQuestions) {
             parts.add(RAND_BTN.getText());
         }
+        parts.add(BACK_BTN.getText());
         List<List<String>> lists = transformListToListOfLists(parts, 2);
         return getKeyBoard(lists);
     }

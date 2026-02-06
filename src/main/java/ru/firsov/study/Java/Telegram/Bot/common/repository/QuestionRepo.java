@@ -18,4 +18,12 @@ public interface QuestionRepo extends CrudRepository<Question, Long> {
             "ORDER BY rand()" +
             "LIMIT 1 ", nativeQuery = true)
     Question findRandomNotSolvedQuestion(@Param("userId") Long userId);
+
+    @Query(value = "SELECT * FROM question q " +
+            "LEFT JOIN user_solved_question usq ON usq.solved_questions = q.id AND usq.user_id = :userId" +
+            "JOIN chapter ch ON q.chapter_id = ch.id" +
+            "WHERE usq.id IS NULL AND q.part_id = :partId" +
+            "ORDER BY rand()" +
+            "LIMIT 1 ", nativeQuery = true)
+    Question findRandomNotSolvedQuestionByPart(@Param("userId") Long userId, @Param("partId") Long partId);
 }
