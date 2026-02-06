@@ -25,17 +25,9 @@ public class RebootNotifyService implements NotifyService {
         });
     }
 
-    private void saveSendedMessage(MessageType type, User user) {
-        InfoMessage infoMessage = new InfoMessage(user, type);
-        infoMessageRepo.save(infoMessage);
-        user.getMessages().add(infoMessage);
-        userService.save(user);
-    }
     private void sendTemplatedMessage(MessageType type, User user) {
         messageService.sendMessage(user.getChatId(), type.getMessage());
-        saveSendedMessage(type, user);
-    }
-    private void sendMessage(User user, String message) {
-        messageService.sendMessage(user.getChatId(), message);
+        InfoMessage infoMessage = new InfoMessage(user, type);
+        infoMessageRepo.save(infoMessage);
     }
 }
