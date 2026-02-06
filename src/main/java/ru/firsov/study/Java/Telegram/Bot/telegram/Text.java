@@ -7,6 +7,7 @@ public enum Text {
     KNOW_BTN(":white_check_mark: Знаю"),
     DONT_KNOW_BTN(":x: Не знаю"),
     BACK_BTN(":arrow_left: Назад"),
+    RAND_BTN(":memo: Случайно"),
     NEXT_BTN(":arrow_right: Следующий"),
     LEARN_BTN(":mag: Изучение"),
     TEST_BTN(":pencil2: Тестирование"),

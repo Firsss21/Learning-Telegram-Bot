@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static ru.firsov.study.Java.Telegram.Bot.common.BotState.RANDOM;
+
 @Service
 @AllArgsConstructor
 @Transactional
@@ -99,10 +101,15 @@ public class QuestionService {
     }
 
 
-    public Question getNextQuest(User user) {
+    public Question getNextQuestion(User user) {
+
+        if (user.getBotStateVariable().equals(RANDOM.name())) {
+            return questionRepo.findRandomNotSolvedQuestion(user.getId());
+        }
+        Question question = null;
+
         List<Question> allQuestsByChapterId = findAllQuestsByChapterId(user.getSelectedChapterId());
         Collections.shuffle(allQuestsByChapterId);
-        Question question = null;
 
         if (user.getBotState() == BotState.LEARNING) {
             question = allQuestsByChapterId.size() > 0 ? allQuestsByChapterId.get(0) : null;

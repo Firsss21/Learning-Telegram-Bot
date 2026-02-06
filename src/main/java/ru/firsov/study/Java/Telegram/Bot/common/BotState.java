@@ -7,6 +7,7 @@ public enum BotState {
     SELECTING_CHAPTER,
     TESTING,
     LEARNING,
+    RANDOM,
 
     ADMIN_LOGIN,
     ADMIN_PAGE,

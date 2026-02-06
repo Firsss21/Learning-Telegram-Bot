@@ -15,6 +15,7 @@ import ru.firsov.study.Java.Telegram.Bot.common.entity.User;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ru.firsov.study.Java.Telegram.Bot.common.BotState.SELECTING_PART;
 import static ru.firsov.study.Java.Telegram.Bot.common.BotState.SETTING_COUNTER;
 import static ru.firsov.study.Java.Telegram.Bot.telegram.Text.*;
 
@@ -31,7 +32,7 @@ public class KeyboardService {
             case ADMIN_ADD_QUESTION_SELECT_PART:
             case ADMIN_ADD_CHAPTER_SELECT_PART:
             case SELECTING_PART : {
-                return getChapters(user, true);
+                return getChapters(user, true, user.getBotState() == SELECTING_PART);
             }
             case ADMIN_ADD_QUESTION_SELECT_CHAPTER:
             case SELECTING_CHAPTER : {
@@ -123,7 +124,7 @@ public class KeyboardService {
         return getKeyBoard(lists);
     }
 
-    private ReplyKeyboardMarkup getChapters(User user, boolean withCountResolved) {
+    private ReplyKeyboardMarkup getChapters(User user, boolean withCountResolved, boolean withRandomQuestions) {
         List<Part> allParts = questionService.findAllParts(false);
         List<String> parts = allParts
                 .stream()
@@ -139,6 +140,9 @@ public class KeyboardService {
                 })
                 .collect(Collectors.toList());
         parts.add(BACK_BTN.getText());
+        if (withRandomQuestions) {
+            parts.add(RAND_BTN.getText());
+        }
         List<List<String>> lists = transformListToListOfLists(parts, 2);
         return getKeyBoard(lists);
     }

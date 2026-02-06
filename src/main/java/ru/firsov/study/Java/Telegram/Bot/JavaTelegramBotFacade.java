@@ -1,27 +1,20 @@
 package ru.firsov.study.Java.Telegram.Bot;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.*;
-import java.net.URL;
 
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.firsov.study.Java.Telegram.Bot.common.BotState;
 import ru.firsov.study.Java.Telegram.Bot.common.Command;
 import ru.firsov.study.Java.Telegram.Bot.common.bean.MessageGenerator;
 import ru.firsov.study.Java.Telegram.Bot.common.entity.*;
 import ru.firsov.study.Java.Telegram.Bot.common.service.*;
 import ru.firsov.study.Java.Telegram.Bot.common.state.LearnedToday;
-import ru.firsov.study.Java.Telegram.Bot.telegram.BotConfig;
 import ru.firsov.study.Java.Telegram.Bot.telegram.BotFacade;
 import ru.firsov.study.Java.Telegram.Bot.telegram.CallbackAnswer;
 
@@ -29,7 +22,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static ru.firsov.study.Java.Telegram.Bot.common.BotState.*;
 import static ru.firsov.study.Java.Telegram.Bot.common.Command.*;
@@ -291,6 +283,19 @@ public class JavaTelegramBotFacade implements BotFacade {
                     sendMessage(update, "Вы вернулись к выбору главы");
                     break;
                 }
+                if (messageText.equals(RAND_BTN.getText())) {
+                    if (user.getBotStateVariable().equals(TESTING.name())) {
+                        user.setBotState(TESTING);
+                    }
+                    if (user.getBotStateVariable().equals(LEARNING.name())) {
+                        user.setBotState(LEARNING);
+                    }
+                    user.setBotStateVariable(RANDOM.name());
+                    sendMessage(update, "Случайные вопросы");
+                    processNextQuestion(user, update);
+                    break;
+                }
+
                 String chapterName = messageText.substring(0, messageText.lastIndexOf("(")).trim();
                 Chapter chapter = questionService.findChapterByName(chapterName);
                 if (chapter != null) {
@@ -584,7 +589,7 @@ public class JavaTelegramBotFacade implements BotFacade {
     }
 
     private void processNextQuestion(User user, Update update) {
-        Question question = questionService.getNextQuest(user);
+        Question question = questionService.getNextQuestion(user);
 
         if (question == null) {
             user.setBotState(SELECTING_CHAPTER);
